@@ -1,31 +1,29 @@
-package validator
+package validation
 
 import (
 	"fmt"
 )
 
 type AcceptedValidation struct {
-	value interface{}
-	field string
+	Value interface{}
+	Field string
 }
 
-// Validate performs the accepted validation.
 func (av *AcceptedValidation) Validate() error {
-	value := av.value
+	value := av.Value
 
 	switch value.(type) {
 	case string:
-		return stringValidation(value, av.field)
+		return stringValidation(value, av.Field)
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		return integerValidation(value, av.field)
+		return integerValidation(value, av.Field)
 	case bool:
-		return boolValidation(value, av.field)
+		return boolValidation(value, av.Field)
 	default:
-		return fmt.Errorf("failed! %s must be (Yes, on, 1, or true)", av.field)
+		return fmt.Errorf("failed! %s must be (Yes, on, 1, or true)", av.Field)
 	}
 }
 
-// stringValidation performs validation for string values.
 func stringValidation(value interface{}, field string) error {
 	val := value.(string)
 	param := []string{"yes", "on"}
@@ -45,7 +43,6 @@ func stringValidation(value interface{}, field string) error {
 	return nil
 }
 
-// integerValidation performs validation for integer values.
 func integerValidation(value interface{}, field string) error {
 	val := value.(int)
 	param := []int{1}
@@ -65,7 +62,6 @@ func integerValidation(value interface{}, field string) error {
 	return nil
 }
 
-// boolValidation performs validation for boolean values.
 func boolValidation(value interface{}, field string) error {
 	val := value.(bool)
 	param := []bool{true}
