@@ -35,12 +35,33 @@ func (v *Validator) Validate(data interface{}) error {
 
 		if tag != "" {
 			rules := strings.Split(tag, "|")
+			var vp ValidationPart
 
 			for _, rule := range rules {
-				vp := ValidationPart{
-					Rule:  rule,
-					field: field.Name,
-					value: value.Interface(),
+
+				if strings.Contains(rule, ":") {
+					keyword := strings.Split(rule, ":")[1]
+					if !strings.Contains(keyword, ",") {
+						compareVal, err := getFieldByKeyword(data, keyword)
+						if err != nil {
+							return err
+						}
+						vp = ValidationPart{
+							Rule:  rule,
+							field: field.Name,
+							value: value.Interface(),
+							ComparisonPart: ComparisonPart{
+								field: keyword,
+								value: compareVal,
+							},
+						}
+					}
+				} else {
+					vp = ValidationPart{
+						Rule:  rule,
+						field: field.Name,
+						value: value.Interface(),
+					}
 				}
 
 				err := vp.Validate(v)
@@ -61,4 +82,20 @@ func (v *Validator) Validate(data interface{}) error {
 	}
 
 	return nil
+}
+
+func getFieldByKeyword(data interface{}, keyword string) (interface{}, error) {
+
+	rt := reflect.TypeOf(data)
+	rv := reflect.ValueOf(data)
+
+	for i := 0; i < rt.NumField(); i++ {
+		field := rt.Field(i)
+		if field.Name == keyword {
+			value := rv.Field(i).Interface()
+			return value, nil
+		}
+	}
+
+	return nil, fmt.Errorf("field with keyword '%s' not found", keyword)
 }

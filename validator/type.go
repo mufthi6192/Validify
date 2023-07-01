@@ -9,7 +9,13 @@ type Validator struct {
 }
 
 type ValidationPart struct {
-	Rule  string
+	Rule           string
+	field          string
+	value          interface{}
+	ComparisonPart ComparisonPart
+}
+
+type ComparisonPart struct {
 	field string
 	value interface{}
 }
